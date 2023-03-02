@@ -1,35 +1,63 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Rating, Spinner } from 'flowbite-react';
+import { Button, Rating, Spinner, Select } from 'flowbite-react';
+import GenreList from './GenreList';
 
 const Index = props => {
     const [movies, setMovies] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [sortBy, setSortBy] = useState('');
+    const [selectedGenre, setSelectedGenre] = useState('');
 
     const fetchMovies = () => {
         setLoading(true);
+        let endpoint = '/api/movies';
+        
+        if (selectedGenre !== '') {
+          endpoint += `/genre/${selectedGenre}`;
+        }
 
-        return fetch('/api/movies')
-            .then(response => response.json())
-            .then(data => {
-                setMovies(data.movies);
-                setLoading(false);
-            });
+        if (sortBy === 'rating') {
+          endpoint += '/order?sort=rating';
+        }
+        if (sortBy === 'latest'){
+          endpoint += '/order?sort=latest';
+        }
+        return fetch(endpoint)
+          .then(response => response.json())
+          .then(data => {
+            setMovies(data.movies);
+            setLoading(false);
+          });
     }
 
-    useEffect(() => {
-        fetchMovies();
-    }, []);
+  useEffect(() => {
+    fetchMovies();
+  }, [sortBy, selectedGenre]);
 
+    const handleSortChange = event => {
+      setSortBy(event.target.value);
+    }
+    const handleGenreChange = event => {
+      setSelectedGenre(event.target.value);
+    };
+    
     return (
-        <Layout>
+      <Layout>
+        <div className="flex justify-between items-center mb-4">
           <Heading />
-
-          <MovieList loading={loading}>
-            {movies.map((item, key) => (
-              <MovieItem key={key} {...item} />
-            ))}
-          </MovieList>
-        </Layout>
+          <GenreList value={selectedGenre} onChange={handleGenreChange} />
+          <Select value={sortBy} onChange={handleSortChange} defaultValue="">
+            <option hidden value=""></option>
+            <option value="latest">Più recenti</option>
+            <option value="rating">Per rating</option>
+          </Select>
+        </div>
+        <MovieList loading={loading}>
+          {movies.map((item, key) => (
+            <MovieItem key={key} {...item} />
+          ))}
+        </MovieList>
+      </Layout>
     );
 };
 
