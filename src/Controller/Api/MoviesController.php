@@ -71,4 +71,17 @@ class MoviesController extends AbstractController
             "movies" => $rows
         ]);
     }
+    
+    #[Route('/api/movies/genres')]
+    public function listGenres(Connection $db): Response
+    {
+        $rows = $db->createQueryBuilder()
+                ->select("m.*")
+                ->from("genres", "m")
+                ->executeQuery()
+                ->fetchAllAssociative();
+        return $this->json([
+                "genres" => $rows
+        ]);
+    }
 }

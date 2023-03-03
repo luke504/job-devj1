@@ -1,29 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from "react";
 
 const GenreList = ({ value, onChange }) => {
+  const [genres, setGenres] = useState([]);
+
+  const fetchGenres = () => {
+    let endpoint = '/api/movies/genres';
+    
+    return fetch(endpoint)
+      .then(response => response.json())
+      .then(data => setGenres(data.genres))
+      .catch(error => console.error(error))
+  }
+  useEffect(() => {
+    fetchGenres();
+  }, []);
+  
   return (
     <select value={value} onChange={onChange}>
-      <option hidden value="">Tutti i generi</option>
-      <option value="Action">Azione</option>
-      <option value="Adventure">Avventura</option>
-      <option value="Animation">Animazione</option>
-      <option value="Comedy">Commedia</option>
-      <option value="Crime">Crimine</option>
-      <option value="Drama">Dramma</option>
-      <option value="Family">Famiglia</option>
-      <option value="Fantasy">Fantasia</option>
-      <option value="History">Storia</option>
-      <option value="Horror">Orrore</option>
-      <option value="Music">Musica</option>
-      <option value="Mystery">Mistero</option>
-      <option value="Romance">Romantico</option>
-      <option value="Sci-Fi">Fantascienza</option>
-      <option value="Sport">Sport</option>
-      <option value="Thriller">Romanzo giallo</option>
-      <option value="War">Guerra</option>
+      <option hidden value="">
+        Tutti i generi
+      </option>
+      {genres.map((genre) => (
+        <option key={genre.id} value={genre.id}>
+          {genre.value}
+        </option>
+      ))}
     </select>
   );
 };
 
 export default GenreList;
-
